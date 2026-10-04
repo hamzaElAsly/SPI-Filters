@@ -1,0 +1,24 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+@layer base {
+    body { background: #f6f8fa; color: #172033; }
+    [x-cloak] { display: none !important; }
+}
+
+@layer components {
+    .field { @apply mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-[#062B4A] focus:ring-2 focus:ring-[#062B4A]/10; }
+    .label { @apply text-sm font-medium text-slate-700; }
+    .btn-primary { @apply inline-flex items-center justify-center gap-2 rounded-lg bg-[#A6192E] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#7F1222] focus:outline-none focus:ring-2 focus:ring-[#A6192E]/30 disabled:cursor-not-allowed disabled:opacity-60; }
+    .btn-secondary { @apply inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-200; }
+    .btn-navy { @apply inline-flex items-center justify-center gap-2 rounded-lg bg-[#062B4A] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#041F36] focus:outline-none focus:ring-2 focus:ring-[#062B4A]/30; }
+    .icon-btn { @apply inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-[#062B4A] focus:outline-none focus:ring-2 focus:ring-[#062B4A]/20; }
+}
