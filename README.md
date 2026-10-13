@@ -57,6 +57,27 @@ Les écritures sont protégées par authentification, middleware `admin`, valida
 php artisan test
 ```
 
+## WooCommerce
+
+### Synchronisation WooCommerce
+
+Laravel reste la source principale des produits. WooCommerce reçoit les produits et catégories envoyés par synchronisation via l'API REST WooCommerce.
+
+Ajouter les paramètres suivants dans `.env` sans les exposer au frontend ni les versionner :
+
+```dotenv
+APP_URL=https://plateforme.example.com
+WOOCOMMERCE_URL=
+WOOCOMMERCE_CONSUMER_KEY=
+WOOCOMMERCE_CONSUMER_SECRET=
+```
+
+Créer dans WooCommerce des clés REST API avec les droits Lecture/Écriture, puis renseigner ces variables dans `.env`. `APP_URL` doit être l’URL publique de Laravel : WooCommerce doit pouvoir ouvrir les images servies par `/storage` sans authentification.
+
+Laravel reste la source principale. Depuis Produits, un administrateur peut tester la connexion, synchroniser un produit ou lancer la synchronisation globale. La synchronisation est manuelle et la suppression d’un produit Laravel ne supprime pas le produit WooCommerce.
+
+Après configuration, exécuter `php artisan storage:link`, puis utiliser **Synchroniser WooCommerce** depuis la page Produits.
+
 ## Build frontend
 
 ```bash

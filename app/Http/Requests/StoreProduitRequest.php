@@ -21,6 +21,7 @@ class StoreProduitRequest extends FormRequest
             'prix_achat' => ['required', 'numeric', 'min:0'],
             'prix_vente' => ['required', 'numeric', 'min:0'],
             'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'categorie_id' => ['nullable', 'integer', 'exists:categories,id'],
         ];
     }
 
@@ -28,7 +29,7 @@ class StoreProduitRequest extends FormRequest
     {
         return [
             'ref' => 'référence', 'description' => 'description',
-            'prix_achat' => "prix d'achat", 'prix_vente' => 'prix de vente', 'image' => 'image',
+            'prix_achat' => "prix d'achat", 'prix_vente' => 'prix de vente', 'image' => 'image', 'categorie_id' => 'catégorie',
         ];
     }
 

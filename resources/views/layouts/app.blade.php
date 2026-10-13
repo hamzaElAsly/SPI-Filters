@@ -1,23 +1,110 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'SPI FILTERS' }} · SPI FILTERS</title>
-    @if(file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot'))) @vite(['resources/css/app.css', 'resources/js/app.js']) @endif
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ $title ?? 'SPI FILTERS' }} · SPI FILTERS</title>
+  <meta name="description"
+    content="SPI FILTERS est une entreprise spécialisée dans la fabrication et la distribution de filtres de haute qualité pour divers secteurs industriels.">
+  <link rel="icon" type="image/webp" href="{{ asset('asset/icon.webp') }}">
+  @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+  @endif
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    .spi-spin {
+      display: inline-block;
+      animation: spi-spin .7s linear infinite;
+    }
+
+    @keyframes spi-spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
 </head>
+
 <body class="min-h-screen antialiased">
-<div x-data="{ mobileMenu: false }" class="min-h-screen">
-    <div x-show="mobileMenu" x-cloak x-transition.opacity class="fixed inset-0 z-30 bg-slate-950/50 lg:hidden" @click="mobileMenu = false"></div>
-    <aside class="fixed inset-y-0 left-0 z-40 flex w-72 -translate-x-full flex-col bg-[#062B4A] text-white transition-transform lg:translate-x-0" :class="mobileMenu ? 'translate-x-0' : ''">
-        <div class="flex h-24 items-center border-b border-white/10 px-7"><a href="{{ route('produits.index') }}" class="block w-40" @click="mobileMenu = false"><img src="{{ asset('asset/logo.jpeg') }}" alt="SPI FILTERS" class="h-auto w-full object-contain"></a></div>
-        <nav class="flex-1 space-y-1 px-4 py-7" aria-label="Navigation principale">
-            <a href="{{ route('produits.index') }}" class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition {{ request()->routeIs('produits.*') ? 'bg-white/12 text-white' : 'text-slate-300 hover:bg-white/8 hover:text-white' }}" @click="mobileMenu = false"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5v-11ZM8 8h8M8 12h8M8 16h5"/></svg>Produits</a>
-            @if(auth()->user()->isAdmin())<a href="{{ route('utilisateurs.index') }}" class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition {{ request()->routeIs('utilisateurs.*') ? 'bg-white/12 text-white' : 'text-slate-300 hover:bg-white/8 hover:text-white' }}" @click="mobileMenu = false"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-3A4.5 4.5 0 0 0 4 18.5V20M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm6-5v6m3-3h-6"/></svg>Utilisateurs</a>@endif
-        </nav>
-        <div class="border-t border-white/10 p-5"><div class="mb-4 flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#A6192E] text-sm font-bold">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div><div class="min-w-0"><p class="truncate text-sm font-semibold">{{ auth()->user()->name }}</p><p class="text-xs text-slate-300">{{ auth()->user()->isAdmin() ? 'Administrateur' : 'Viewer' }}</p></div></div><form method="POST" action="{{ route('logout') }}">@csrf<button class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-300 transition hover:bg-white/8 hover:text-white"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 8V5.5A1.5 1.5 0 0 0 13.5 4h-7A1.5 1.5 0 0 0 5 5.5v13A1.5 1.5 0 0 0 6.5 20h7a1.5 1.5 0 0 0 1.5-1.5V16M11 12h8m0 0-3-3m3 3-3 3"/></svg>Déconnexion</button></form></div>
+  <div x-data="{ mobileMenu: false }" class="min-h-screen">
+    <div x-show="mobileMenu" x-cloak x-transition.opacity class="fixed inset-0 z-30 bg-slate-950/50 lg:hidden"
+      @click="mobileMenu = false"></div>
+    <aside
+      class="fixed inset-y-0 left-0 z-40 flex w-72 -translate-x-full flex-col bg-[#062B4A] text-white transition-transform lg:translate-x-0"
+      :class="mobileMenu ? 'translate-x-0' : ''">
+      <div class="flex h-24 items-center border-b border-white/10 px-7"><a href="{{ route('produits.index') }}"
+          class="block w-100" @click="mobileMenu = false"><img src="{{ asset('asset/logo.jpeg') }}" alt="SPI FILTERS"
+            class="h-auto w-full object-contain"></a></div>
+      <nav class="flex-1 space-y-1 px-4 py-7" aria-label="Navigation principale">
+        <a href="{{ route('produits.index') }}"
+          class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition {{ request()->routeIs('produits.*') ? 'bg-white/12 text-white' : 'text-slate-300 hover:bg-white/8 hover:text-white' }}"
+          @click="mobileMenu = false"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5v-11ZM8 8h8M8 12h8M8 16h5" />
+          </svg>Produits</a>
+        @if (auth()->user()->isAdmin())
+          <a href="{{ route('categories.index') }}"
+            class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition {{ request()->routeIs('categories.*') ? 'bg-white/12 text-white' : 'text-slate-300 hover:bg-white/8 hover:text-white' }}"
+            @click="mobileMenu = false"><span
+              class="flex h-5 w-5 items-center justify-center text-base">#</span>Catégories</a>
+          <a href="{{ route('utilisateurs.index') }}"
+            class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition {{ request()->routeIs('utilisateurs.*') ? 'bg-white/12 text-white' : 'text-slate-300 hover:bg-white/8 hover:text-white' }}"
+            @click="mobileMenu = false"><svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                d="M16 20v-1.5a4.5 4.5 0 0 0-4.5-4.5h-3A4.5 4.5 0 0 0 4 18.5V20M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm6-5v6m3-3h-6" />
+            </svg>Utilisateurs</a>
+        @endif
+      </nav>
+      <div class="border-t border-white/10 p-5">
+        <div class="mb-4 flex items-center gap-3">
+          <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#A6192E] text-sm font-bold">
+            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+          <div class="min-w-0">
+            <p class="truncate text-sm font-semibold">{{ auth()->user()->name }}</p>
+            <p class="text-xs text-slate-300">{{ auth()->user()->isAdmin() ? 'Administrateur' : 'Viewer' }}</p>
+          </div>
+        </div>
+        <form method="POST" action="{{ route('logout') }}">@csrf<button
+            class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-300 transition hover:bg-white/8 hover:text-white"><svg
+              class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                d="M15 8V5.5A1.5 1.5 0 0 0 13.5 4h-7A1.5 1.5 0 0 0 5 5.5v13A1.5 1.5 0 0 0 6.5 20h7a1.5 1.5 0 0 0 1.5-1.5V16M11 12h8m0 0-3-3m3 3-3 3" />
+            </svg>Déconnexion</button></form>
+      </div>
     </aside>
-    <main class="min-h-screen lg:pl-72"><header class="flex h-20 items-center justify-between border-b border-slate-200 bg-white px-5 sm:px-8 lg:hidden"><button class="icon-btn" aria-label="Ouvrir le menu" @click="mobileMenu = true"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><img src="{{ asset('asset/logo.jpeg') }}" alt="SPI FILTERS" class="h-10 w-36 object-contain"><span class="w-9"></span></header><div class="mx-auto max-w-[1440px] px-5 py-7 sm:px-8 lg:px-10 lg:py-10">@yield('content')</div></main>
-</div>
-@if(session('success'))<div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 4000)" class="fixed bottom-5 right-5 z-50 flex max-w-sm items-center gap-3 rounded-xl border border-emerald-100 bg-white px-4 py-3 text-sm font-medium text-emerald-700 shadow-lg"><span class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50">✓</span>{{ session('success') }}<button @click="show = false" class="ml-2 text-slate-400">×</button></div>@endif
-@if(session('error'))<div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 4000)" class="fixed bottom-5 right-5 z-50 flex max-w-sm items-center gap-3 rounded-xl border border-red-100 bg-white px-4 py-3 text-sm font-medium text-red-700 shadow-lg"><span class="flex h-7 w-7 items-center justify-center rounded-full bg-red-50">!</span>{{ session('error') }}<button @click="show = false" class="ml-2 text-slate-400">×</button></div>@endif
-</body></html>
+    <main class="min-h-screen lg:pl-72">
+      <header class="flex h-20 items-center justify-between border-b border-slate-200 bg-white px-5 sm:px-8 lg:hidden">
+        <button class="icon-btn" aria-label="Ouvrir le menu" @click="mobileMenu = true"><svg class="h-6 w-6"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg></button><img src="{{ asset('asset/logo.jpeg') }}" alt="SPI FILTERS"
+          class="h-10 w-36 object-contain"><span class="w-9"></span>
+      </header>
+      <div class="mx-auto max-w-[1440px] px-5 py-7 sm:px-8 lg:px-10 lg:py-10">@yield('content')</div>
+    </main>
+  </div>
+  @if (session('success'))
+    <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 4000)"
+      class="fixed bottom-5 right-5 z-50 flex max-w-sm items-center gap-3 rounded-xl border border-emerald-100 bg-white px-4 py-3 text-sm font-medium text-emerald-700 shadow-lg">
+      <span
+        class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50">✓</span>{{ session('success') }}
+      <button @click="show = false" class="ml-2 text-slate-400">×</button>
+    </div>
+  @endif
+  @if (session('error'))
+    <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 4000)"
+      class="fixed bottom-5 right-5 z-50 flex max-w-sm items-center gap-3 rounded-xl border border-red-100 bg-white px-4 py-3 text-sm font-medium text-red-700 shadow-lg">
+      <span class="flex h-7 w-7 items-center justify-center rounded-full bg-red-50">!</span>{{ session('error') }}
+      <button @click="show = false" class="ml-2 text-slate-400">×</button>
+    </div>
+  @endif
+  @if (session('warning'))
+    <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 6000)"
+      class="fixed bottom-5 right-5 z-50 flex max-w-sm items-center gap-3 rounded-xl border border-amber-100 bg-white px-4 py-3 text-sm font-medium text-amber-700 shadow-lg">
+      <span class="flex h-7 w-7 items-center justify-center rounded-full bg-amber-50">!</span>{{ session('warning') }}
+      <button @click="show = false" class="ml-2 text-slate-400">×</button>
+    </div>
+  @endif
+</body>
+
+</html>

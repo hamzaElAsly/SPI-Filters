@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProduitRequest;
 use App\Http\Requests\UpdateProduitRequest;
 use App\Models\Produit;
+use App\Models\Categorie;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -16,12 +17,15 @@ class ProduitController extends Controller
     {
         $search = trim((string) $request->query('search', ''));
         $produits = Produit::query()
+            ->with('categorie')
             ->when($search !== '', fn ($query) => $query->where(fn ($query) => $query->where('ref', 'like', "%{$search}%")->orWhere('description', 'like', "%{$search}%")))
             ->latest()
             ->paginate(15)
             ->withQueryString();
 
-        return view('produits.index', compact('produits', 'search'));
+        $categories = Categorie::query()->orderBy('nom')->get();
+
+        return view('produits.index', compact('produits', 'search', 'categories'));
     }
 
     public function store(StoreProduitRequest $request): RedirectResponse

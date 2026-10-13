@@ -13,8 +13,8 @@ window.productsPage = (products, initialEditId = null, oldEdit = {}, oldAdd = {}
     editProduct: null,
     deleteProduct: null,
     imagePreview: null,
-    addForm: { ref: '', description: '', prix_achat: '', prix_vente: '' },
-    editForm: { ref: '', description: '', prix_achat: '', prix_vente: '' },
+    addForm: { ref: '', description: '', prix_achat: '', prix_vente: '', categorie_id: '' },
+    editForm: { ref: '', description: '', prix_achat: '', prix_vente: '', categorie_id: '' },
     init() {
         if (this.oldAdd.ref !== null && this.oldAdd.ref !== undefined) {
             this.addForm = { ...this.addForm, ...this.oldAdd };
@@ -28,13 +28,13 @@ window.productsPage = (products, initialEditId = null, oldEdit = {}, oldAdd = {}
     },
     openAdd() {
         this.modal = 'add';
-        this.addForm = { ref: '', description: '', prix_achat: '', prix_vente: '' };
+        this.addForm = { ref: '', description: '', prix_achat: '', prix_vente: '', categorie_id: '' };
         if (this.oldAdd.ref !== null && this.oldAdd.ref !== undefined) this.addForm = { ...this.addForm, ...this.oldAdd };
     },
     openDetails(product) { this.selected = product; this.modal = 'details'; },
     openEdit(product) {
         this.editProduct = product;
-        this.editForm = { ref: product.ref, description: product.description, prix_achat: product.prix_achat, prix_vente: product.prix_vente };
+        this.editForm = { ref: product.ref, description: product.description, prix_achat: product.prix_achat, prix_vente: product.prix_vente, categorie_id: product.categorie_id || '' };
         if (this.oldEdit.ref !== null && this.oldEdit.ref !== undefined) this.editForm = { ...this.editForm, ...this.oldEdit };
         this.modal = 'edit';
     },

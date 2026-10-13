@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    'woocommerce' => [
+        'url' => env('WOOCOMMERCE_URL'),
+        'consumer_key' => env('WOOCOMMERCE_CONSUMER_KEY'),
+        'consumer_secret' => env('WOOCOMMERCE_CONSUMER_SECRET'),
+        'connect_timeout' => env('WOOCOMMERCE_CONNECT_TIMEOUT', 10),
+        'timeout' => env('WOOCOMMERCE_TIMEOUT', 20),
+        'retry_times' => env('WOOCOMMERCE_RETRY_TIMES', 1),
+    ],
+
 ];
