@@ -59,12 +59,36 @@
 
     <div class="mt-8 rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div class="border-b border-slate-100 p-4 sm:p-5">
-        <form method="GET" action="{{ route('produits.index') }}" class="relative max-w-xl"><input name="search"
-            value="{{ $search }}" class="field mt-0 pr-20" placeholder="Rechercher par référence ou description..."
-            aria-label="Rechercher un produit"><button
-            class="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-3 py-1.5 text-xs font-semibold text-[#062B4A] hover:bg-slate-100">Rechercher</button>
+        <form method="GET" action="{{ route('produits.index') }}"
+          class="flex flex-col gap-3 lg:flex-row lg:items-center">
+          <!-- Recherche -->
+          <div class="relative w-full flex-1">
+            <input type="text" name="search" value="{{ $search }}" class="field mt-0 w-full"
+              placeholder="Rechercher par référence ou description..." aria-label="Rechercher un produit">
+          </div>
+
+          <!-- Filtre catégorie -->
+          <div class="">
+            <select name="categorie_id" class="field mt-0 w-full" aria-label="Filtrer par catégorie">
+              <option value="">Toutes les catégories</option>
+
+              @foreach ($categories as $categorie)
+                <option value="{{ $categorie->id }}" @selected((string) $categorieId === (string) $categorie->id)>
+                  {{ $categorie->nom }}
+                </option>
+              @endforeach
+            </select>
+          </div>
+          <button type="submit" class="rounded-lg bg-[#062B4A] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#0A406B]">
+            Rechercher
+          </button>
+
+          <a href="{{ route('produits.index') }}" class="rounded-lg border border-slate-200 px-5 py-3 text-center text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+            Réinitialiser
+          </a>
         </form>
       </div>
+
       <div class="overflow-x-auto">
         <table class="w-full min-w-[980px] text-left">
           <thead class="bg-slate-50/70 text-xs uppercase tracking-wider text-slate-500">
@@ -73,7 +97,9 @@
               <th class="px-5 py-4 font-semibold">Référence</th>
               <th class="px-5 py-4 font-semibold">Description</th>
               <th class="px-5 py-4 font-semibold">Catégorie</th>
-              <th class="px-5 py-4 font-semibold">Prix d'achat</th>
+              @if ($isAdmin)
+                <th class="px-5 py-4 font-semibold">Prix d'achat</th>
+              @endif
               <th class="px-5 py-4 font-semibold">Prix de vente</th>
               @if ($isAdmin)
                 <th class="px-5 py-4 font-semibold">WooCommerce</th>
@@ -102,8 +128,10 @@
                 <td class="max-w-xs px-5 py-4 text-sm text-slate-600"><span
                     class="line-clamp-2">{{ $produit->description }}</span></td>
                 <td class="px-5 py-4 text-sm text-slate-600">{{ $produit->categorie?->nom ?? 'Sans catégorie' }}</td>
-                <td class="whitespace-nowrap px-5 py-4 text-sm font-medium text-slate-700">
-                  {{ number_format((float) $produit->prix_achat, 2, ',', ' ') }} DH</td>
+                @if ($isAdmin)
+                  <td class="whitespace-nowrap px-5 py-4 text-sm font-medium text-slate-700">
+                    {{ number_format((float) $produit->prix_achat, 2, ',', ' ') }} DH</td>
+                @endif
                 <td class="whitespace-nowrap px-5 py-4 text-sm font-semibold text-[#062B4A]">
                   {{ number_format((float) $produit->prix_vente, 2, ',', ' ') }} DH</td>
                 @if ($isAdmin)
@@ -129,7 +157,8 @@
                       <form method="POST" action="{{ route('produits.woocommerce.sync', $produit) }}"
                         x-data="{ loading: false }" @submit="loading = true">
                         @csrf
-                        <button class="icon-btn text-[#062B4A]" title="Synchroniser avec WooCommerce" type="submit":disabled="loading">
+                        <button class="icon-btn text-[#062B4A]" title="Synchroniser avec WooCommerce"
+                          type="submit":disabled="loading">
                           <i class="bi bi-arrow-repeat" :class="{ 'spi-spin': loading }" aria-hidden="true"></i>
                           <span class="sr-only">Synchroniser avec WooCommerce</span>
                         </button>
