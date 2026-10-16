@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Exceptions\WooCommerceException;
 use App\Models\Categorie;
 use App\Models\Produit;
 use App\Models\User;
@@ -44,16 +45,41 @@ class WooCommerceServiceTest extends TestCase
         $this->assertNotNull($product->fresh()->woocommerce_synced_at);
         Http::assertSent(function ($request) {
             $body = $request->data();
+
             return $request->method() === 'POST'
                 && $request->url() === 'https://shop.example.test/wp-json/wc/v3/products'
                 && $body['sku'] === 'SPI-1'
-                && $body['name'] === 'Filtre hydraulique'
-                && $body['regular_price'] === '120.00'
+                && $body['name'] === 'SPI-1'
+                && $body['description'] === 'Filtre hydraulique'
+                && $body['regular_price'] === '162.00'
+                && $body['sale_price'] === '120.00'
+                && $body['meta_data'] === [['key' => '_spi_prix_achat', 'value' => '10.00']]
                 && $body['images'] === [['src' => 'https://platform.example.test/storage/produits/filtre.jpg']]
                 && $body['type'] === 'simple'
                 && $body['status'] === 'publish'
-                && !array_key_exists('prix_achat', $body);
+                && ! array_key_exists('prix_achat', $body);
         });
+    }
+
+    public function test_invalid_prices_are_not_sent_to_woocommerce(): void
+    {
+        Http::fake();
+        $product = new Produit([
+            'ref' => 'SPI-INVALID',
+            'description' => 'Produit invalide',
+            'prix_achat' => 10,
+            'prix_vente' => -1,
+            'old_prix' => 1,
+        ]);
+
+        try {
+            app(WooCommerceService::class)->createProduct($product);
+            $this->fail('Une exception de prix était attendue.');
+        } catch (WooCommerceException) {
+            $this->addToAssertionCount(1);
+        }
+
+        Http::assertNothingSent();
     }
 
     public function test_update_product_uses_woocommerce_id_and_refreshes_sync_timestamp(): void
@@ -156,7 +182,7 @@ class WooCommerceServiceTest extends TestCase
         $service->syncProduct($product);
 
         $this->assertNotNull($service->lastSyncWarning());
-        Http::assertSent(fn ($request) => !array_key_exists('images', $request->data()));
+        Http::assertSent(fn ($request) => ! array_key_exists('images', $request->data()));
     }
 
     public function test_image_download_error_retries_product_without_image(): void
@@ -183,7 +209,7 @@ class WooCommerceServiceTest extends TestCase
         $this->assertSame(52, $product->fresh()->woocommerce_id);
         $this->assertNotNull($service->lastSyncWarning());
         Http::assertSentCount(3);
-        Http::assertSent(fn ($request) => $request->method() === 'POST' && !array_key_exists('images', $request->data()));
+        Http::assertSent(fn ($request) => $request->method() === 'POST' && ! array_key_exists('images', $request->data()));
     }
 
     public function test_product_with_missing_remote_id_is_relinked_by_sku(): void

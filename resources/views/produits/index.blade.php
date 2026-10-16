@@ -13,7 +13,8 @@
               'categorie' => $produit->categorie?->nom,
               'prix_achat' => (string) $produit->prix_achat,
               'prix_vente' => (string) $produit->prix_vente,
-              'image' => $produit->image ? asset('storage/' . $produit->image) : null,
+              'old_prix' => (string) $produit->old_prix,
+              'image' => $produit->image ? \Illuminate\Support\Facades\Storage::disk('public')->url($produit->image) : null,
               'woocommerce_id' => $produit->woocommerce_id,
               'woocommerce_synced_at' => $produit->woocommerce_synced_at?->format('d/m/Y H:i'),
           ],
@@ -110,13 +111,16 @@
           </thead>
           <tbody class="divide-y divide-slate-100">
             @forelse($produits as $produit)
-              @php($productData = ['id' => $produit->id, 'ref' => $produit->ref, 'description' => $produit->description, 'categorie_id' => $produit->categorie_id, 'categorie' => $produit->categorie?->nom, 'prix_achat' => (string) $produit->prix_achat, 'prix_vente' => (string) $produit->prix_vente, 'image' => $produit->image ? asset('storage/' . $produit->image) : null, 'woocommerce_id' => $produit->woocommerce_id, 'woocommerce_synced_at' => $produit->woocommerce_synced_at?->format('d/m/Y H:i')])
+              @php($productData = ['id' => $produit->id, 'ref' => $produit->ref, 'description' => $produit->description, 'categorie_id' => $produit->categorie_id, 'categorie' => $produit->categorie?->nom, 'prix_achat' => (string) $produit->prix_achat, 'prix_vente' => (string) $produit->prix_vente, 'old_prix' => (string) $produit->old_prix, 'image' => $produit->image ? \Illuminate\Support\Facades\Storage::disk('public')->url($produit->image) : null, 'woocommerce_id' => $produit->woocommerce_id, 'woocommerce_synced_at' => $produit->woocommerce_synced_at?->format('d/m/Y H:i')])
               <tr class="transition hover:bg-slate-50/60">
                 <td class="px-5 py-4">
                   <div
                     class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg border border-slate-100 bg-slate-50">
                     @if ($produit->image)
-                      <img src="{{ asset('storage/' . $produit->image) }}" alt="{{ $produit->ref }}"
+                      <img 
+                      {{-- src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($produit->image) }}"  --}}
+                      src="{{ asset('storage/' . $produit->image) }}"
+                      alt="{{ $produit->ref }}"
                       class="h-full w-full object-cover">@else<span
                         class="text-[10px] font-bold tracking-wider text-slate-300">SPI</span>
                     @endif
@@ -202,7 +206,11 @@
               <div><label class="label" for="add_ref">Référence *</label><input id="add_ref" name="ref"
                   x-model="addForm.ref" class="field" required></div>
               <div><label class="label" for="add_image">Image</label><input id="add_image" name="image"
-                  type="file" accept="image/jpeg,image/png,image/webp" class="field"></div>
+                  type="file" accept="image/jpeg,image/png,image/webp" class="field">
+                @if ($errors->storeProduit->has('image'))
+                  <p class="mt-1 text-xs text-red-600">{{ $errors->storeProduit->first('image') }}</p>
+                @endif
+              </div>
             </div>
             <div><label class="label" for="add_description">Description *</label>
               <textarea id="add_description" name="description" x-model="addForm.description" rows="3" class="field"
@@ -223,6 +231,13 @@
               <div><label class="label" for="add_sell">Prix de vente *</label><input id="add_sell" name="prix_vente"
                   type="number" min="0" step="0.01" x-model="addForm.prix_vente" class="field" required>
               </div>
+              <div class="rounded-lg bg-slate-50 p-3 sm:col-span-2">
+                <div class="flex items-center justify-between gap-4 text-sm">
+                  <span class="font-semibold text-slate-600">Ancien prix calculé</span>
+                  <span class="font-bold text-[#062B4A]"><span x-text="calculateOldPrice(addForm.prix_vente)"></span> DH</span>
+                </div>
+                <p class="mt-1 text-xs text-slate-400">Calculé automatiquement à partir du prix de vente.</p>
+              </div>
             </div>
             <div class="flex justify-end gap-3"><button type="button" @click="closeAll()"
                 class="btn-secondary">Annuler</button><button class="btn-primary">Ajouter le produit</button></div>
@@ -242,7 +257,11 @@
               <div><label class="label" for="edit_ref">Référence *</label><input id="edit_ref" name="ref"
                   x-model="editForm.ref" class="field" required></div>
               <div><label class="label" for="edit_image">Remplacer l'image</label><input id="edit_image"
-                  name="image" type="file" accept="image/jpeg,image/png,image/webp" class="field"></div>
+                  name="image" type="file" accept="image/jpeg,image/png,image/webp" class="field">
+                @if ($errors->updateProduit->has('image'))
+                  <p class="mt-1 text-xs text-red-600">{{ $errors->updateProduit->first('image') }}</p>
+                @endif
+              </div>
             </div>
             <div><label class="label" for="edit_description">Description *</label>
               <textarea id="edit_description" name="description" x-model="editForm.description" rows="3" class="field"
@@ -263,6 +282,13 @@
               <div><label class="label" for="edit_sell">Prix de vente *</label><input id="edit_sell"
                   name="prix_vente" type="number" min="0" step="0.01" x-model="editForm.prix_vente"
                   class="field" required></div>
+              <div class="rounded-lg bg-slate-50 p-3 sm:col-span-2">
+                <div class="flex items-center justify-between gap-4 text-sm">
+                  <span class="font-semibold text-slate-600">Ancien prix calculé</span>
+                  <span class="font-bold text-[#062B4A]"><span x-text="calculateOldPrice(editForm.prix_vente)"></span> DH</span>
+                </div>
+                <p class="mt-1 text-xs text-slate-400">Calculé automatiquement à partir du prix de vente.</p>
+              </div>
             </div>
             <div class="flex justify-end gap-3"><button type="button" @click="closeAll()"
                 class="btn-secondary">Annuler</button><button class="btn-primary">Enregistrer</button></div>
@@ -329,6 +355,10 @@
           <div class="flex justify-between py-3">
             <dt class="text-slate-500">Prix de vente</dt>
             <dd class="font-bold text-[#062B4A]"><span x-text="formatPrice(selected?.prix_vente)"></span> DH</dd>
+          </div>
+          <div class="flex justify-between py-3">
+            <dt class="text-slate-500">Ancien prix</dt>
+            <dd class="font-bold text-slate-500"><span x-text="formatPrice(selected?.old_prix)"></span> DH</dd>
           </div>
         </dl>
       </div>

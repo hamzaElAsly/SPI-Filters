@@ -12,8 +12,9 @@ return new class extends Migration
             $table->id();
             $table->string('ref')->unique();
             $table->text('description');
-            $table->decimal('prix_achat', 10, 2);
-            $table->decimal('prix_vente', 10, 2);
+            $table->decimal('prix_achat', 10, 2)->nullable();
+            $table->decimal('prix_vente', 10, 2)->nullable();
+            $table->decimal('old_prix', 12, 2)->nullable();
             $table->string('image')->nullable();
             $table->timestamps();
         });

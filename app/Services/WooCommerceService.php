@@ -68,7 +68,7 @@ class WooCommerceService
 
     public function updateCategory(Categorie $categorie): array
     {
-        if (!$categorie->woocommerce_id) {
+        if (! $categorie->woocommerce_id) {
             return $this->syncCategory($categorie);
         }
 
@@ -130,7 +130,7 @@ class WooCommerceService
 
     public function updateProduct(Produit $produit): array
     {
-        if (!$produit->woocommerce_id) {
+        if (! $produit->woocommerce_id) {
             return $this->syncProduct($produit);
         }
 
@@ -167,8 +167,9 @@ class WooCommerceService
             }
 
             $existing = $this->findProductBySku($produit->ref);
-            if ($existing !== null && !empty($existing['id'])) {
+            if ($existing !== null && ! empty($existing['id'])) {
                 $produit->forceFill(['woocommerce_id' => (int) $existing['id']])->save();
+
                 return $this->updateProduct($produit);
             }
 
@@ -186,7 +187,7 @@ class WooCommerceService
         try {
             return $this->request($method, $path, [], $payload);
         } catch (WooCommerceException $exception) {
-            if (!$exception->imageError || !array_key_exists('images', $payload)) {
+            if (! $exception->imageError || ! array_key_exists('images', $payload)) {
                 throw $exception;
             }
 
@@ -205,13 +206,36 @@ class WooCommerceService
             $this->syncCategory($produit->categorie);
         }
 
+        $regularPrice = $this->formatWooPrice($produit->old_prix);
+        $expectedOldPrice = Produit::calculateOldPrice($produit->prix_vente);
+        $salePrice = $this->formatWooPrice($produit->prix_vente);
+        $purchasePrice = $this->formatWooPrice($produit->prix_achat);
+
+        if (
+            trim((string) $produit->ref) === ''
+            || $regularPrice === null
+            || $expectedOldPrice === null
+            || $regularPrice !== $expectedOldPrice
+            || $salePrice === null
+            || $purchasePrice === null
+        ) {
+            throw new WooCommerceException('Les prix ou la référence du produit sont invalides.');
+        }
+
         $payload = [
             'type' => 'simple',
             'status' => 'publish',
             'sku' => (string) $produit->ref,
-            'name' => $this->productName((string) $produit->description, (string) $produit->ref),
+            'name' => (string) $produit->ref,
             'description' => (string) $produit->description,
-            'regular_price' => number_format((float) $produit->prix_vente, 2, '.', ''),
+            'regular_price' => $regularPrice,
+            'sale_price' => $salePrice,
+            'meta_data' => [
+                [
+                    'key' => '_spi_prix_achat',
+                    'value' => $purchasePrice,
+                ],
+            ],
         ];
 
         if ($produit->categorie?->woocommerce_id) {
@@ -226,23 +250,30 @@ class WooCommerceService
         return $payload;
     }
 
-    private function productName(string $description, string $ref): string
+    private function formatWooPrice(mixed $price): ?string
     {
-        $description = trim($description);
+        if ($price === null || $price === '' || ! is_numeric($price)) {
+            return null;
+        }
 
-        return Str::limit($description !== '' ? $description : $ref, 120, '');
+        $price = (float) $price;
+        if ($price < 0 || ! is_finite($price)) {
+            return null;
+        }
+
+        return number_format($price, 2, '.', '');
     }
 
     public function getProductImageUrl(Produit $produit): ?string
     {
-        if (!$produit->image) {
+        if (! $produit->image) {
             return null;
         }
 
         if (Str::startsWith($produit->image, ['http://', 'https://'])) {
             $url = $produit->image;
         } else {
-            if (!Storage::disk('public')->exists($produit->image)) {
+            if (! Storage::disk('public')->exists($produit->image)) {
                 $this->lastSyncWarning = 'Le produit a été synchronisé, mais l’image n’a pas pu être envoyée.';
 
                 return null;
@@ -252,7 +283,7 @@ class WooCommerceService
             $url = $appUrl.'/storage/'.ltrim($produit->image, '/');
         }
 
-        if (!filter_var($url, FILTER_VALIDATE_URL) || $this->isLocalUrl($url)) {
+        if (! filter_var($url, FILTER_VALIDATE_URL) || $this->isLocalUrl($url)) {
             $this->lastSyncWarning = 'Le produit a été synchronisé, mais l’image n’a pas pu être envoyée.';
 
             return null;
@@ -283,7 +314,7 @@ class WooCommerceService
 
     private function saveCategoryWooCommerceId(Categorie $categorie, array $data): void
     {
-        if (!empty($data['id'])) {
+        if (! empty($data['id'])) {
             $categorie->forceFill(['woocommerce_id' => (int) $data['id']])->save();
         }
     }
@@ -325,7 +356,7 @@ class WooCommerceService
             }
 
             $response = $this->client()->send(strtoupper($method), $url, $options);
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 throw $this->responseException($response, $path);
             }
 
@@ -347,7 +378,7 @@ class WooCommerceService
     private function baseUrl(): string
     {
         $base = trim((string) config('services.woocommerce.url'));
-        if ($base === '' || !filter_var($base, FILTER_VALIDATE_URL)) {
+        if ($base === '' || ! filter_var($base, FILTER_VALIDATE_URL)) {
             throw new WooCommerceException('Impossible de se connecter à WooCommerce.');
         }
 

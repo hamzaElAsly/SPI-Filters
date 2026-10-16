@@ -45,6 +45,12 @@ window.productsPage = (products, initialEditId = null, oldEdit = {}, oldAdd = {}
         const [file] = event.target.files;
         if (file) this.imagePreview = URL.createObjectURL(file);
     },
+    calculateOldPrice(value) {
+        if (value === '' || value === null || value === undefined) return '—';
+        const price = Number(value);
+        if (!Number.isFinite(price) || price < 0) return '—';
+        return this.formatPrice(price * 1.35);
+    },
     formatPrice(value) { return new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value || 0)); },
 });
 
