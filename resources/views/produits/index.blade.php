@@ -118,10 +118,10 @@
                     class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg border border-slate-100 bg-slate-50">
                     @if ($produit->image)
                       <img 
-                      {{-- src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($produit->image) }}"  --}}
+                      {{-- src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($produit->image) }}" --}}
                       src="{{ asset('storage/' . $produit->image) }}"
-                      alt="{{ $produit->ref }}"
-                      class="h-full w-full object-cover">@else<span
+                      alt="{{ $produit->ref }}" class="h-full w-full object-cover">
+                    @else<span
                         class="text-[10px] font-bold tracking-wider text-slate-300">SPI</span>
                     @endif
                   </div>

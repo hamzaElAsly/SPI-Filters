@@ -201,15 +201,34 @@ class ProduitController extends Controller
         }
 
         $filename = $image->hashName();
-        $path = Storage::disk('public')->putFileAs(
+        $disk = Storage::disk('public');
+        $path = $disk->putFileAs(
             'produits',
             $image,
             $filename
         );
 
-        if ($path === false) {
+        if (
+            $path === false
+            || ! is_string($path)
+            || ! str_starts_with($path, 'produits/')
+            || str_contains($path, '..')
+            || str_contains($path, '\\')
+        ) {
+            if (is_string($path)) {
+                $disk->delete($path);
+            }
+
             throw new RuntimeException(
                 'Impossible d’enregistrer le fichier image.'
+            );
+        }
+
+        if (! $disk->exists($path)) {
+            $disk->delete($path);
+
+            throw new RuntimeException(
+                'Le fichier image n’est pas présent sur le stockage configuré.'
             );
         }
 
