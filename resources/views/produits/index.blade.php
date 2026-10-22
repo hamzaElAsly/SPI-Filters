@@ -57,6 +57,82 @@
         @endif
       </div>
     </div>
+{{-- ========================================================================================== --}}
+@php($importSummary = session('import_summary'))
+<div x-data="{ openImport: {{ $errors->has('fichier') || $importSummary ? 'true' : 'false' }}, loading: false }">
+  <button type="button" @click="openImport = true" class="btn-secondary">Importer Excel</button>
+
+  <div x-show="openImport" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+    @keydown.escape.window="openImport = false">
+    <div @click.outside="openImport = false" class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
+      <h2 class="text-xl font-bold text-[#062B4A]">Importer des produits</h2>
+      <p class="mt-1 text-sm text-slate-500">
+        Fichier .xlsx — ligne 2 : <strong>REF | PRIX | DESIGNATION</strong>, produits à partir de la ligne 3.
+      </p>
+
+      @if ($importSummary)
+        <div class="mt-4 rounded-lg border p-3 text-sm {{ empty($importSummary['errors']) ? 'border-green-200 bg-green-50' : 'border-amber-200 bg-amber-50' }}">
+          <p class="font-bold text-[#062B4A]">
+            {{ $importSummary['dry_run'] ? 'Simulation terminée : aucune donnée écrite.' : 'Import terminé.' }}
+          </p>
+          <ul class="mt-1 text-slate-700">
+            <li>Lignes lues : {{ $importSummary['rows'] }}</li>
+            <li>Créés : {{ $importSummary['imported'] }}</li>
+            <li>Mis à jour : {{ $importSummary['updated'] }}</li>
+            <li>Ignorés : {{ $importSummary['skipped'] }}</li>
+            <li>Erreurs : {{ count($importSummary['errors']) }}</li>
+          </ul>
+          @if (! empty($importSummary['errors']))
+            <ul class="mt-2 max-h-32 overflow-y-auto text-red-600">
+              @foreach (array_slice($importSummary['errors'], 0, 20) as $err)
+                <li>Ligne {{ $err['row'] }} : {{ $err['message'] }}</li>
+              @endforeach
+            </ul>
+            @if (count($importSummary['errors']) > 20)
+              <p class="mt-1 text-slate-500">+ {{ count($importSummary['errors']) - 20 }} autre(s) erreur(s).</p>
+            @endif
+          @endif
+        </div>
+      @endif
+
+      <form method="POST" action="{{ route('produits.import-excel') }}" enctype="multipart/form-data"
+        class="mt-5 space-y-4" @submit="loading = true">
+        @csrf
+
+        <div>
+          <label class="mb-1 block text-sm font-semibold text-slate-700">Fichier Excel</label>
+          <input type="file" name="fichier" accept=".xlsx" required
+            class="block w-full rounded-lg border border-slate-300 p-2 text-sm">
+          @error('fichier')
+            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+          @enderror
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-semibold text-slate-700">Si la référence existe déjà</label>
+          <select name="duplicate" class="block w-full rounded-lg border border-slate-300 p-2 text-sm">
+            <option value="update">Mettre à jour</option>
+            <option value="skip">Ignorer</option>
+            <option value="error">Signaler une erreur</option>
+          </select>
+        </div>
+
+        <label class="flex items-center gap-2 text-sm text-slate-700">
+          <input type="checkbox" name="dry_run" value="1" checked class="rounded">
+          Simulation (rien n’est enregistré)
+        </label>
+
+        <div class="flex justify-end gap-2">
+          <button type="button" class="btn-secondary" @click="openImport = false">Fermer</button>
+          <button type="submit" class="btn-primary" :disabled="loading">
+            <span x-text="loading ? 'Import en cours...' : 'Importer'"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{{-- ========================================================================================== --}}
 
     <div class="mt-8 rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div class="border-b border-slate-100 p-4 sm:p-5">

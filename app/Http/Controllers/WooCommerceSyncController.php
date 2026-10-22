@@ -12,6 +12,7 @@ use Throwable;
 
 class WooCommerceSyncController extends Controller
 {
+    // /woocommerce/sync-products ==>504 Gateway Time-out
     public function syncProduct(Produit $produit, WooCommerceService $woocommerce): RedirectResponse
     {
         try {

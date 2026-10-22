@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthenticatedSessionController;
 use App\Http\Controllers\CategorieController;
 use App\Http\Controllers\ProduitController;
+use App\Http\Controllers\ProduitImportController;
 use App\Http\Controllers\UtilisateurController;
 use App\Http\Controllers\WooCommerceSyncController;
 use Illuminate\Support\Facades\Route;
@@ -33,5 +34,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/utilisateurs', [UtilisateurController::class, 'index'])->name('utilisateurs.index');
         Route::post('/utilisateurs', [UtilisateurController::class, 'store'])->name('utilisateurs.store');
         Route::delete('/utilisateurs/{utilisateur}', [UtilisateurController::class, 'destroy'])->name('utilisateurs.destroy');
+        Route::post('/produits/import-excel', [ProduitImportController::class, 'store'])->name('produits.import-excel');
     });
 });

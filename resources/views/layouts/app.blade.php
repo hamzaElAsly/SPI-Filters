@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +13,12 @@
   @endif
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <style>
+    .maincontenu img:hover {
+      -webkit-transform: scale(1.1);
+      transform: scale(1.1);
+      transition: all 0.3s ease-in-out;
+    }
+
     .spi-spin {
       display: inline-block;
       animation: spi-spin .7s linear infinite;
@@ -32,9 +39,12 @@
     <aside
       class="fixed inset-y-0 left-0 z-40 flex w-72 -translate-x-full flex-col bg-[#062B4A] text-white transition-transform lg:translate-x-0"
       :class="mobileMenu ? 'translate-x-0' : ''">
-      <div class="flex h-24 items-center border-b border-white/10 px-7"><a href="{{ route('produits.index') }}"
-          class="block w-100" @click="mobileMenu = false"><img src="{{ asset('asset/logo.jpeg') }}" alt="SPI FILTERS"
-            class="h-auto w-full object-contain"></a></div>
+      <div class="maincontenu flex h-24 items-center border-b border-white/10 px-7" style="background-color:white;">
+        {{-- --}}
+        <a href="{{ route('produits.index') }}" class="block w-100" @click="mobileMenu = false">
+          <img src="{{ asset('asset/logo.jpeg') }}" alt="SPI FILTERS" class="h-auto w-full object-contain">
+        </a>
+      </div>
       <nav class="flex-1 space-y-1 px-4 py-7" aria-label="Navigation principale">
         <a href="{{ route('produits.index') }}"
           class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition {{ request()->routeIs('produits.*') ? 'bg-white/12 text-white' : 'text-slate-300 hover:bg-white/8 hover:text-white' }}"
@@ -73,12 +83,14 @@
       </div>
     </aside>
     <main class="min-h-screen lg:pl-72">
-      <header class="flex h-20 items-center justify-between border-b border-slate-200 bg-white px-5 sm:px-8 lg:hidden">
-        <button class="icon-btn" aria-label="Ouvrir le menu" @click="mobileMenu = true"><svg class="h-6 w-6"
-            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <header class="maincontenu flex h-20 items-center justify-between border-b border-slate-200 bg-white px-5 sm:px-8 lg:hidden">
+        <button class="icon-btn" aria-label="Ouvrir le menu" @click="mobileMenu = true">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg></button><img src="{{ asset('asset/logo.jpeg') }}" alt="SPI FILTERS"
-          class="h-10 w-36 object-contain"><span class="w-9"></span>
+          </svg>
+        </button>
+        <img src="{{ asset('asset/logo.jpeg') }}" alt="SPI FILTERS" class="h-10 w-36 object-contain">
+        <span class="w-9"></span>
       </header>
       <div class="mx-auto max-w-[1440px] px-5 py-7 sm:px-8 lg:px-10 lg:py-10">@yield('content')</div>
     </main>
